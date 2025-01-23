@@ -22,7 +22,7 @@ const Filter = () => {
   console.log(selectedGenres);
 
   return (
-    <div className="p-4 w-full bg-white shadow-lg rounded-lg">
+    <div className="p-4 w-full shadow-[0_2px_8px_rgba(0,0,0,0.1)] rounded-lg">
       <div>Genre</div>
       <div className="mt-4">
         <ToggleGroup
@@ -38,7 +38,7 @@ const Filter = () => {
                 value={g.id}
                 key={g.id}
                 size={"sm"}
-                className="border-solid rounded-full text-xs"
+                className="border-solid rounded-full text-xs hover:bg-moviedbBlue hover:text-white data-[state=on]:bg-moviedbBlue data-[state=on]:text-white"
               >
                 {g.name}
               </ToggleGroupItem>
@@ -46,11 +46,6 @@ const Filter = () => {
         </ToggleGroup>
       </div>
     </div>
-    // <div className="max-w-md mx-auto p-4 bg-white shadow-lg rounded-lg">
-    //   <div className="grid grid-cols-2 gap-4">
-
-    //   </div>
-    // </div>
   );
 };
 

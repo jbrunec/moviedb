@@ -20,12 +20,15 @@ const MovieList = () => {
   const fillers = getFillers(movies) || [];
 
   return (
-    <section className="max-w-[1052px] mr-4 flex flex-wrap pl-8">
+    <section className="max-w-[917px] mr-4 flex flex-wrap gap-7">
       {movies.map((movie) => (
-        <MovieCard movie={movie} />
+        <MovieCard key={movie.id} movie={movie} />
       ))}
-      {fillers.map(() => (
-        <div className="w-[180px] border-0 mt-0 h-0 shadow-none"></div>
+      {fillers.map((_, idx) => (
+        <div
+          key={idx}
+          className="w-[180px] border-0 mt-0 h-0 shadow-none"
+        ></div>
       ))}
     </section>
   );
