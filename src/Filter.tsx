@@ -1,13 +1,6 @@
 import { useEffect, useState } from "react";
 import { ToggleGroup, ToggleGroupItem } from "./components/ui/toggle-group";
-
-type GenreListResponse = {
-  genres: GenreItem[];
-};
-type GenreItem = {
-  id: string;
-  name: string;
-};
+import { GenreListResponse } from "./lib/Types";
 
 const Filter = () => {
   const key = import.meta.env.VITE_API_KEY;
