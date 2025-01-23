@@ -8,9 +8,9 @@ type MovieCardProps = {
 
 const MovieCard = ({ movie }: MovieCardProps) => {
   const imageUrl = `${imageConfig.base_url}${imageConfig.poster_sizes[2]}/${movie.poster_path}`;
+  const movieRating = Math.floor(movie.vote_average * 10);
   //`https://media.themoviedb.org/t/p/w220_and_h330_face/pwTyeFi2mg0bBoCNysT50xREbQF.jpg`;
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const movieRating = Math.floor(movie.vote_average * 10);
   const drawProgressBar = useCallback(
     (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {
       const size = 40; // Canvas size
@@ -31,8 +31,7 @@ const MovieCard = ({ movie }: MovieCardProps) => {
       const startAngle = -Math.PI / 2; // Start at the top
       const endAngle = startAngle + Math.PI * 2 * progress; // Calculate end angle based on progress
       ctx.arc(size / 2, size / 2, radius, startAngle, endAngle);
-      //   ctx.strokeStyle = "#21cc78"; // Green color
-      ctx.strokeStyle = movieRating >= 70 ? "#21cc78" : "#d2d531"; // Green color
+      ctx.strokeStyle = movieRating >= 70 ? "#21cc78" : "#d2d531"; // Stroke color
       ctx.lineWidth = lineWidth;
       ctx.stroke();
     },
@@ -44,6 +43,12 @@ const MovieCard = ({ movie }: MovieCardProps) => {
     const ctx = canvas.getContext("2d")!;
     drawProgressBar(ctx, canvas);
   }, [drawProgressBar]);
+
+  const formattedDate = new Intl.DateTimeFormat("en-US", {
+    month: "short", // Abbreviated month name (e.g., "Dec")
+    day: "numeric", // Numeric day (e.g., "11")
+    year: "numeric", // Numeric year (e.g., "2024")
+  }).format(new Date(movie.release_date));
 
   return (
     <div className="w-[161px] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.1)] border-1 flex content-start flex-wrap cursor-pointer">
@@ -69,8 +74,12 @@ const MovieCard = ({ movie }: MovieCardProps) => {
             </div>
           </div>
         </div>
-        <h2 className="relative w-full font-bold text-[14px]">{movie.title}</h2>
-        <p className="w-full text-black/50 font-medium">{movie.release_date}</p>
+        <h2 className="relative w-full font-bold text-[14px] tracking-tight">
+          {movie.title}
+        </h2>
+        <p className="w-full text-black/50 font-medium text-[14px] tracking-tight">
+          {formattedDate}
+        </p>
       </div>
     </div>
   );

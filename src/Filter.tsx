@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { ToggleGroup, ToggleGroupItem } from "./components/ui/toggle-group";
 import { GenreListResponse } from "./lib/Types";
+import { useFilterContext } from "./hooks/hooks";
 
 const Filter = () => {
   const key = import.meta.env.VITE_API_KEY;
   const [genreList, setGenreList] = useState<GenreListResponse>({ genres: [] });
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+  const { selectedGenre, handleChangeFilterQuery } = useFilterContext();
 
   useEffect(() => {
     const getGenres = async () => {
@@ -19,8 +20,6 @@ const Filter = () => {
     getGenres();
   }, [key]);
 
-  console.log(selectedGenres);
-
   return (
     <div className="p-4 w-full shadow-[0_2px_8px_rgba(0,0,0,0.1)] rounded-lg">
       <div>Genre</div>
@@ -29,8 +28,8 @@ const Filter = () => {
           type="multiple"
           variant={"outline"}
           className="grid grid-cols-2 gap-2"
-          onValueChange={(values: string[]) => setSelectedGenres(values)}
-          value={selectedGenres}
+          onValueChange={(values: string[]) => handleChangeFilterQuery(values)}
+          value={selectedGenre}
         >
           {genreList &&
             genreList.genres.map((g) => (

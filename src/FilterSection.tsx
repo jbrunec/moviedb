@@ -1,10 +1,11 @@
 import Filter from "./Filter";
+import FilterContainer from "./FilterContainer";
 
 const FilterSection = () => {
   return (
-    <section className="flex flex-col justify-start items-center w-[260px] min-w-[260px] ml-4">
+    <FilterContainer>
       <Filter />
-    </section>
+    </FilterContainer>
   );
 };
 
