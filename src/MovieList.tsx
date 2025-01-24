@@ -1,74 +1,51 @@
 import { useEffect, useState } from "react";
 import MovieCard from "./MovieCard";
-import { MovieListItem, MovieListResponse } from "./lib/Types";
-import { useFilterContext } from "./hooks/hooks";
+import { useFilterContext, useMovieItemsContext } from "./hooks/hooks";
 import { getFillers } from "./lib/utils";
 
 const MovieList = () => {
-  const key = import.meta.env.VITE_API_KEY;
-  const [movies, setMovies] = useState<MovieListItem[]>([]);
-  const [page, setPage] = useState(1);
-  const { filterApiQuery } = useFilterContext();
-  console.log("filter query in MovieList: ", filterApiQuery);
-  const [shouldLoadMoreOnScroll, setShouldLoadMoreOnScroll] = useState(false);
-
-  useEffect(() => {
-    const abortController = new AbortController();
-    const getMovies = async () => {
-      // the API actually returns duplicates sometimes between page 1 & 2 (e.g. movie id 933260), hence error in console
-      const res = await fetch(
-        `https://api.themoviedb.org/3/discover/movie?api_key=${key}&page=${page}&sort_by=popularity.desc&with_genres=${filterApiQuery}`,
-        { signal: abortController.signal }
-      );
-      const data = (await res.json()) as MovieListResponse;
-      console.log("API movies: ", data);
-      setMovies((prev) => [...prev, ...data.results]);
-    };
-    getMovies();
-
-    return () => {
-      abortController.abort();
-    };
-  }, [key, filterApiQuery, page]);
-
-  useEffect(() => {
-    setMovies([]);
-    setShouldLoadMoreOnScroll(false);
-  }, [filterApiQuery]);
+  const { movieItems, setPage, handleLoadMore, shouldLoadMoreOnScroll } =
+    useMovieItemsContext();
+  const { filterSubmitBtn, handleSubmitFilter, isFilterDirty } =
+    useFilterContext();
+  const [isDocked, setIsDocked] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      console.log(
-        "handle scroll ",
-        window.innerHeight + document.documentElement.scrollTop,
-        document.documentElement.offsetHeight - 400
-      );
       // Check if the user has scrolled near the bottom of the page
       if (
         window.innerHeight + document.documentElement.scrollTop >=
-          document.documentElement.offsetHeight - 400 && // 100px buffer
+          document.documentElement.offsetHeight - 400 && // 400px buffer
         shouldLoadMoreOnScroll
       ) {
-        setPage((prevPage) => prevPage + 1); // Load next page
+        setPage((prevPage) => ++prevPage);
       }
     };
 
-    window.addEventListener("scroll", handleScroll); // Add scroll event listener
-    return () => window.removeEventListener("scroll", handleScroll); // Cleanup
-  }, [shouldLoadMoreOnScroll]);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [shouldLoadMoreOnScroll, setPage]);
 
-  const fillers = getFillers(movies) || [];
-  console.log("movies log", movies);
+  useEffect(() => {
+    const handleScroll = () => {
+      const button = filterSubmitBtn.current;
+      if (button) {
+        const buttonRect = button.getBoundingClientRect();
+        const isButtonOutOfView = buttonRect.top < 0; // Check if the button is above the viewport
+        setIsDocked(isButtonOutOfView);
+      }
+    };
 
-  const handleLoadMore = () => {
-    setPage((prev) => prev + 1);
-    setShouldLoadMoreOnScroll(true);
-  };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [filterSubmitBtn]);
+
+  const fillers = getFillers(movieItems) || [];
 
   return (
     <>
       <section className="max-w-[917px] mr-4 flex flex-wrap gap-7">
-        {movies.map((movie) => (
+        {movieItems.map((movie) => (
           <MovieCard key={movie.id} movie={movie} />
         ))}
         {fillers.map((_, idx) => (
@@ -78,6 +55,15 @@ const MovieList = () => {
           ></div>
         ))}
       </section>
+      {isDocked && isFilterDirty && (
+        <button
+          id="filter-btn"
+          className="fixed bottom-0 right-0 w-full h-10 bg-moviedbBlue hover:bg-moviedbBlue/80 text-white font-semibold text-lg"
+          onClick={handleSubmitFilter}
+        >
+          Search
+        </button>
+      )}
       {!shouldLoadMoreOnScroll && (
         <button
           onClick={handleLoadMore}
